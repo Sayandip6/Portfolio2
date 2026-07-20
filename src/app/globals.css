@@ -1,8 +1,61 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
+  /* ===== BASE COLORS ===== */
+  --background: #000000;
+  --foreground: #ffffff;
+  
+  /* ===== CUSTOMIZABLE COLORS ===== */
+  --primary-color: #16dd91;
+  --secondary-color: #000000;
+  --accent-color: #000000;
+  --text-primary: #ffffff;
+  --text-secondary: #f0fdfb;
+  --text-tertiary: #000000;
+  --border-color: #000000;
+  
+  /* ===== HEADER CUSTOMIZATION ===== */
+  --header-bg: #11b34127;
+  --header-border: #1006a01a;
+  --header-text: #ffffff;
+  --header-logo-color: #ffffff;
+  --header-link-hover: #14c498;
+  
+  /* ===== HERO SECTION CUSTOMIZATION ===== */
+  --hero-bg-primary: #16383448;
+  --hero-gradient-1: #20816c;
+  --hero-gradient-2: #175a4c;
+  --hero-text-primary: #f2fbf8;
+  --hero-text-secondary: #d2f5e9;
+  --hero-badge-bg: #0a2924bb;
+  --hero-badge-border: #1b544840;
+  --hero-badge-text: #000000;
+  
+  /* ===== BUTTON CUSTOMIZATION ===== */
+  --btn-primary-bg: #09e7a4;
+  --btn-primary-text: #000000;
+  --btn-primary-hover-bg: #1cf300;
+  --btn-secondary-bg: rgba(255, 255, 255, 0.05);
+  --btn-secondary-border: rgba(255, 255, 255, 0.15);
+  --btn-secondary-text: #e2e8f0;
+  --btn-secondary-hover-bg: #08f500;
+  --btn-secondary-hover-border: rgb(255, 255, 255);
+  
+  /* ===== CARD CUSTOMIZATION ===== */
+  --card-bg: #0099ff41;
+  --card-border: #0cf8d941;
+  --card-text: #ffffff;
+  --card-label-text: #ffffff;
+  --card-value-text: #ffffff;
+  
+  /* ===== ANIMATION CUSTOMIZATION ===== */
+  --animation-duration-fast: 150ms;
+  --animation-duration-normal: 300ms;
+  --animation-duration-slow: 500ms;
+  --animation-easing: ease-in-out;
+  
+  /* ===== SCROLL BEHAVIOR ===== */
+  --scroll-behavior: smooth;
 }
 
 @theme inline {
@@ -17,7 +70,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: var(--scroll-behavior);
   cursor: none;
 }
 
@@ -38,6 +91,93 @@ select {
 }
 
 ::selection {
-  background: rgba(34, 211, 238, 0.35);
-  color: white;
+  background: #e017b559;
+  color: #ec1bec;
+}
+
+/* ===== CUSTOM ELEMENT CLASSES ===== */
+
+/* Header */
+.custom-header {
+  background-color: var(--header-bg);
+  border-color: var(--header-border);
+  color: var(--header-text);
+}
+
+.custom-header-logo {
+  color: var(--header-logo-color);
+}
+
+.custom-header-link {
+  color: var(--header-text);
+  transition: color var(--animation-duration-normal) var(--animation-easing);
+}
+
+.custom-header-link:hover {
+  color: var(--header-link-hover);
+}
+
+/* Hero Section */
+.custom-hero {
+  background-color: var(--hero-bg-primary);
+}
+
+.custom-hero-text-primary {
+  color: var(--hero-text-primary);
+}
+
+.custom-hero-text-secondary {
+  color: var(--hero-text-secondary);
+}
+
+.custom-hero-badge {
+  background-color: var(--hero-badge-bg);
+  border-color: var(--hero-badge-border);
+  color: var(--hero-badge-text);
+}
+
+/* Buttons */
+.custom-btn-primary {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  transition: background-color var(--animation-duration-normal) var(--animation-easing);
+}
+
+.custom-btn-primary:hover {
+  background-color: var(--btn-primary-hover-bg);
+}
+
+.custom-btn-secondary {
+  background-color: var(--btn-secondary-bg);
+  border-color: var(--btn-secondary-border);
+  color: var(--btn-secondary-text);
+  transition: all var(--animation-duration-normal) var(--animation-easing);
+}
+
+.custom-btn-secondary:hover {
+  background-color: var(--btn-secondary-hover-bg);
+  border-color: var(--btn-secondary-hover-border);
+}
+
+/* Cards */
+.custom-card {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+.custom-card-label {
+  color: var(--card-label-text);
+}
+
+.custom-card-value {
+  color: var(--card-value-text);
+}
+
+.custom-card-text {
+  color: var(--card-text);
+}
+
+/* section contact */
+#contact {
+  
 }

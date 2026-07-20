@@ -1,11 +1,10 @@
 "use client";
 
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 import {
   ArrowUpRight,
   BadgeCheck,
   BrainCircuit,
-  Boxes,
   Code2,
   Cpu,
   Database,
@@ -16,9 +15,14 @@ import {
   Rocket,
   ShieldCheck,
   Sparkles,
+  type LucideIcon,
   Workflow,
 } from "lucide-react";
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
+import ContactPortrait from "@/components/contact-portrait";
+import ProjectCarousel from "@/components/project-carousel";
+import RippleBackground from "@/components/ripple-background";
 
 // EDIT: Navigation items
 const navItems = ["About", "Skills", "Projects", "Experience", "Contact"];
@@ -56,6 +60,22 @@ const projects = [
     stack: ["React 18", "CSS3", "Vite 5", "PokeAPI","Axios"],
     link: "https://arashi-pokedex.netlify.app/",
     github: "https://github.com/Sayandip6/Pokedex",
+    image: "/projects/arashi-pokedex-cover.png",
+    imageAlt: "Arashi Pokedex project cover placeholder",
+    gallery: [
+      {
+        src: "/projects/gallery/arashi-pokedex-overview.png",
+        alt: "Arashi Pokedex overview placeholder",
+      },
+      {
+        src: "/projects/gallery/arashi-pokedex-dex-detail.svg",
+        alt: "Arashi Pokedex dex detail placeholder",
+      },
+      {
+        src: "/projects/gallery/arashi-pokedex-mobile-view.svg",
+        alt: "Arashi Pokedex mobile view placeholder",
+      },
+    ],
   },
   {
     title: "smart_hire_nexus",
@@ -64,6 +84,22 @@ const projects = [
     stack: ["React", "Node.js", "MongoDB", "Express.js"],
     link: "https://smart-hire-nexus.netlify.app/",
     github: "https://github.com/Sayandip6/smart_hire_nexus",
+    image: "/projects/smart-hire-nexus-cover.png",
+    imageAlt: "Smart Hire Nexus project cover placeholder",
+    gallery: [
+      {
+        src: "/projects/gallery/smart-hire-nexus-dashboard.svg",
+        alt: "Smart Hire Nexus dashboard placeholder",
+      },
+      {
+        src: "/projects/gallery/smart-hire-nexus-candidate-list.svg",
+        alt: "Smart Hire Nexus candidate list placeholder",
+      },
+      {
+        src: "/projects/gallery/smart-hire-nexus-mobile-view.svg",
+        alt: "Smart Hire Nexus mobile view placeholder",
+      },
+    ],
   },
   {
     title: "Quiz-Hub",
@@ -72,6 +108,22 @@ const projects = [
     stack: ["HTML 5", "JavaScript", "CSS3"],
     link: "https://sayandip6.github.io/Sayandip6-Quiz-Hub/",
     github: "https://github.com/Sayandip6/Sayandip6-Quiz-Hub",
+    image: "/projects/quiz-hub-cover.png",
+    imageAlt: "Quiz Hub project cover placeholder",
+    gallery: [
+      {
+        src: "/projects/gallery/quiz-hub-quiz-flow.svg",
+        alt: "Quiz Hub quiz flow placeholder",
+      },
+      {
+        src: "/projects/gallery/quiz-hub-results-screen.svg",
+        alt: "Quiz Hub results screen placeholder",
+      },
+      {
+        src: "/projects/gallery/quiz-hub-mobile-view.svg",
+        alt: "Quiz Hub mobile view placeholder",
+      },
+    ],
   },
 ];
 
@@ -94,20 +146,143 @@ const timeline = [
 
 ];
 
+const SHINY_KEYFRAMES_ID = "shiny-hero-keyframes";
+
+function ShinyHeroText({ text }: { text: string }) {
+  const shellStyle: CSSProperties = {
+    position: "relative",
+    display: "inline-block",
+    boxSizing: "border-box",
+    whiteSpace: "normal",
+    color: "inherit",
+  };
+
+  const shineLayerStyle: CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    color: "#78FF83",
+    pointerEvents: "none",
+    WebkitMaskImage:
+      "linear-gradient(to right, transparent 30%, #000 50%, transparent 70%)",
+    maskImage:
+      "linear-gradient(to right, transparent 30%, #000 50%, transparent 70%)",
+    WebkitMaskSize: "150% auto",
+    maskSize: "150% auto",
+    animation: "shinyHeroSweep 1.5s ease-in-out infinite",
+  };
+
+  return (
+    <span style={shellStyle}>
+      <style
+        id={SHINY_KEYFRAMES_ID}
+        dangerouslySetInnerHTML={{
+          __html: `@keyframes shinyHeroSweep {
+            0% { -webkit-mask-position: 200%; mask-position: 200%; }
+            100% { -webkit-mask-position: -100%; mask-position: -100%; }
+          }`,
+        }}
+      />
+      <span style={{ position: "relative", zIndex: 1 }}>{text}</span>
+      <span style={shineLayerStyle} aria-hidden="true">
+        {text}
+      </span>
+    </span>
+  );
+}
+
+function TiltSkillCard({
+  title,
+  icon: Icon,
+  items,
+  delay,
+}: {
+  title: string;
+  icon: LucideIcon;
+  items: string[];
+  delay: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const xSpring = useSpring(x);
+  const ySpring = useSpring(y);
+  const transform = useMotionTemplate`rotateX(${xSpring}deg) rotateY(${ySpring}deg)`;
+  const rotationRange = 32.5;
+  const halfRotationRange = rotationRange / 2;
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = (event.clientX - rect.left) * rotationRange;
+    const mouseY = (event.clientY - rect.top) * rotationRange;
+    const rotationX = (mouseY / height - halfRotationRange) * -1;
+    const rotationY = mouseX / width - halfRotationRange;
+    x.set(rotationX);
+    y.set(rotationY);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.article
+      ref={ref}
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.55, delay }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transformStyle: "preserve-3d",
+        transform,
+      }}
+      className="group relative rounded-[1.75rem] border border-white/10 bg-slate-900/70 p-6 backdrop-blur transition hover:border-cyan-400/30"
+    >
+      <div
+        style={{
+          transform: "translateZ(48px)",
+          transformStyle: "preserve-3d",
+        }}
+      >
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+          <Icon size={20} />
+        </div>
+        <h3 className="mt-6 text-xl font-semibold text-white">{title}</h3>
+        <ul className="mt-4 space-y-2 text-sm text-slate-300">
+          {items.map((item) => (
+            <li key={item} className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-300" />
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </motion.article>
+  );
+}
+
 export default function Home() {
-  const [cursor, setCursor] = useState({ x: 0, y: 0 });
   const [isPointerReady, setIsPointerReady] = useState(false);
+  const [isRippleActive, setIsRippleActive] = useState(true);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const smoothX = useSpring(x, { stiffness: 180, damping: 20, mass: 0.8 });
   const smoothY = useSpring(y, { stiffness: 180, damping: 20, mass: 0.8 });
+  const contactSentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const media = window.matchMedia("(hover: hover) and (pointer: fine)");
-    setIsPointerReady(media.matches);
+    const updatePointerState = () => setIsPointerReady(media.matches);
+    const rafId = window.requestAnimationFrame(updatePointerState);
 
     const onMove = (event: MouseEvent) => {
-      setCursor({ x: event.clientX, y: event.clientY });
       x.set(event.clientX);
       y.set(event.clientY);
     };
@@ -116,13 +291,40 @@ export default function Home() {
       window.addEventListener("mousemove", onMove);
     }
 
+    media.addEventListener("change", updatePointerState);
+
     return () => {
+      window.cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", onMove);
+      media.removeEventListener("change", updatePointerState);
     };
   }, [x, y]);
 
+  useEffect(() => {
+    const sentinel = contactSentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsRippleActive(!entry.isIntersecting);
+      },
+      { rootMargin: "0px 0px -30% 0px", threshold: 0 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,_rgba(120,119,198,0.25),_transparent_32%),linear-gradient(135deg,_#020617_0%,_#060816_45%,_#020617_100%)] text-slate-100">
+    <div 
+      className="relative isolate min-h-screen overflow-x-hidden text-slate-100"
+      style={{
+        background: "linear-gradient(135deg, var(--hero-bg-primary) 0%, var(--hero-bg-primary) 45%, var(--hero-bg-primary) 100%)",
+        color: "var(--text-primary)"
+      }}
+    >
+      <RippleBackground active={isRippleActive} />
+
       {isPointerReady ? (
         <motion.div
           className="pointer-events-none fixed left-0 top-0 z-50 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-300/70 bg-cyan-300/10 shadow-[0_0_45px_rgba(34,211,238,0.25)]"
@@ -130,16 +332,37 @@ export default function Home() {
         />
       ) : null}
 
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
+      <header 
+        className="sticky top-0 z-40 border-b backdrop-blur-xl"
+        style={{
+          backgroundColor: "var(--header-bg)",
+          borderColor: "var(--header-border)",
+          color: "var(--header-text)"
+        }}
+      >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-10">
 
           {/* EDIT: Header branding */}
-          <a href="#home" className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-200">
+          <a 
+            href="#home" 
+            className="text-sm font-semibold uppercase tracking-[0.3em]"
+            style={{ color: "var(--header-logo-color)" }}
+          >
             Sayandip / Dev
           </a>
-          <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
+          <nav className="hidden items-center gap-6 text-sm md:flex" style={{ color: "var(--header-text)" }}>
             {navItems.map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className="transition hover:text-white">
+              <a 
+                key={item} 
+                href={`#${item.toLowerCase()}`} 
+                className="transition"
+                style={{
+                  color: "var(--header-text)",
+                  cursor: "pointer"
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--header-link-hover)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--header-text)")}
+              >
                 {item}
               </a>
             ))}
@@ -147,7 +370,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main id="home">
+      <main id="home" className="relative z-10">
         <section className="relative mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-center px-6 py-24 sm:px-8 lg:px-10">
           <div className="absolute inset-0 -z-10 overflow-hidden">
             <motion.div
@@ -169,17 +392,30 @@ export default function Home() {
             className="max-w-3xl"
           >
             {/* EDIT: Hero status badge */}
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-200">
+            <div 
+              className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm"
+              style={{
+                backgroundColor: "var(--hero-badge-bg)",
+                borderColor: "var(--hero-badge-border)",
+                color: "var(--hero-badge-text)"
+              }}
+            >
               <Sparkles size={16} />
               Available for freelance and product collaborations
             </div>
             {/* EDIT: Hero headline */}
-            <h1 className="text-4xl font-semibold leading-[0.95] tracking-tight text-white sm:text-6xl lg:text-7xl">
-              I craft EYE-catching, high-performing digital experiences for ambitious brands.
+            <h1 
+              className="text-4xl font-semibold leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl"
+              style={{ color: "var(--hero-text-primary)" }}
+            >
+              <ShinyHeroText text="I craft EYE-catching, high-performing digital experiences for ambitious brands." />
             </h1>
             
             {/* EDIT: Hero subheading */}
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300 sm:text-xl">
+            <p 
+              className="mt-6 max-w-2xl text-lg leading-8 sm:text-xl"
+              style={{ color: "var(--hero-text-secondary)" }}
+            >
               I’m a Full Stack MERN developer blending React, Three.js, AI integrations, and thoughtful backend systems into polished, memorable products.
             </p>
             
@@ -187,13 +423,22 @@ export default function Home() {
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <a
                 href="#projects"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-950 transition hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition hover:scale-[1.02]"
+                style={{
+                  backgroundColor: "var(--btn-primary-bg)",
+                  color: "var(--btn-primary-text)"
+                }}
               >
                 Explore projects <ArrowUpRight size={16} />
               </a>
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition"
+                style={{
+                  backgroundColor: "var(--btn-secondary-bg)",
+                  borderColor: "var(--btn-secondary-border)",
+                  color: "var(--btn-secondary-text)"
+                }}
               >
                 Let’s build together
               </a>
@@ -207,9 +452,16 @@ export default function Home() {
               { label: "Focus", value: "Performance first" },
               { label: "Delivery", value: "Fast, polished, scalable" },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-                <p className="text-sm text-slate-400">{item.label}</p>
-                <p className="mt-2 text-lg font-medium text-white">{item.value}</p>
+              <div 
+                key={item.label} 
+                className="rounded-2xl border p-4 backdrop-blur"
+                style={{
+                  backgroundColor: "var(--card-bg)",
+                  borderColor: "var(--card-border)"
+                }}
+              >
+                <p className="text-sm" style={{ color: "var(--card-label-text)" }}>{item.label}</p>
+                <p className="mt-2 text-lg font-medium" style={{ color: "var(--card-value-text)" }}>{item.value}</p>
               </div>
             ))}
           </div>
@@ -222,18 +474,22 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.7 }}
-              className="rounded-[2rem] border border-white/10 bg-slate-900/70 p-8 backdrop-blur"
+              className="rounded-[2rem] border p-8 backdrop-blur"
+              style={{
+                backgroundColor: "rgba(15, 23, 42, 0.7)",
+                borderColor: "var(--card-border)"
+              }}
             >
               {/* EDIT: About section title */}
-              <p className="text-sm uppercase tracking-[0.3em] text-cyan-300">About</p>
-              <h2 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">
+              <p className="text-sm uppercase tracking-[0.3em]" style={{ color: "var(--primary-color)" }}>About</p>
+              <h2 className="mt-4 text-3xl font-semibold sm:text-4xl" style={{ color: "var(--text-primary)" }}>
                 Crafting Digital Experiences.
               </h2>
               {/* EDIT: About section description */}
-              <p className="mt-6 text-lg leading-8 text-slate-300">
-                I'm a Full Stack Developer specializing in the MERN stack, building clean, scalable, and responsive web applications. I enjoy solving problems and creating impactful digital experiences.
+              <p className="mt-6 text-lg leading-8" style={{ color: "var(--text-secondary)" }}>
+                I&apos;m a Full Stack Developer specializing in the MERN stack, building clean, scalable, and responsive web applications. I enjoy solving problems and creating impactful digital experiences.
               </p>
-              <p className="mt-4 text-lg leading-8 text-slate-300">
+              <p className="mt-4 text-lg leading-8" style={{ color: "var(--text-secondary)" }}>
               I believe great software should be fast, intuitive, and engaging. I enjoy building full-stack applications and interactive experiences while continuously learning and refining every project.
               </p>
             </motion.div>
@@ -243,10 +499,14 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.7, delay: 0.12 }}
-              className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-cyan-500/15 via-slate-900/70 to-fuchsia-500/15 p-8 backdrop-blur"
+              className="rounded-[2rem] border p-8 backdrop-blur"
+              style={{
+                backgroundColor: "rgba(6, 182, 212, 0.1)",
+                borderColor: "var(--card-border)"
+              }}
             >
               {/* EDIT: Signature traits section */}
-              <div className="flex items-center gap-3 text-cyan-200">
+              <div className="flex items-center gap-3" style={{ color: "var(--primary-color)" }}>
                 <Rocket size={18} />
                 <span className="text-sm uppercase tracking-[0.25em]">Signature traits</span>
               </div>
@@ -280,32 +540,15 @@ export default function Home() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {skills.map((skill, index) => {
-              const Icon = skill.icon;
-              return (
-                <motion.article
-                  key={skill.title}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{ duration: 0.55, delay: index * 0.06 }}
-                  className="group rounded-[1.75rem] border border-white/10 bg-slate-900/70 p-6 backdrop-blur transition hover:-translate-y-1 hover:border-cyan-400/30"
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
-                    <Icon size={20} />
-                  </div>
-                  <h3 className="mt-6 text-xl font-semibold text-white">{skill.title}</h3>
-                  <ul className="mt-4 space-y-2 text-sm text-slate-300">
-                    {skill.items.map((item) => (
-                      <li key={item} className="flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-cyan-300" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.article>
-              );
-            })}
+            {skills.map((skill, index) => (
+              <TiltSkillCard
+                key={skill.title}
+                title={skill.title}
+                icon={skill.icon}
+                items={skill.items}
+                delay={index * 0.06}
+              />
+            ))}
           </div>
         </section>
 
@@ -322,42 +565,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
-            {projects.map((project, index) => (
-              <motion.article
-                key={project.title}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6, delay: index * 0.08 }}
-                className="group rounded-[1.75rem] border border-white/10 bg-slate-900/70 p-6 backdrop-blur transition hover:-translate-y-1 hover:border-cyan-400/30"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-cyan-200">
-                    <Boxes size={18} />
-                  </div>
-                  <span className="text-sm text-slate-400">0{index + 1}</span>
-                </div>
-                <h3 className="mt-6 text-2xl font-semibold text-white">{project.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-300">{project.summary}</p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {project.stack.map((tech) => (
-                    <span key={tech} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-slate-300">
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-6 flex items-center gap-4 text-sm text-cyan-200">
-                  <a href={project.link} className="inline-flex items-center gap-2 transition hover:text-white">
-                    Live preview <ArrowUpRight size={14} />
-                  </a>
-                  <a href={project.github} className="inline-flex items-center gap-2 transition hover:text-white">
-                    GitHub <ArrowUpRight size={14} />
-                  </a>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+          <ProjectCarousel items={projects} />
         </section>
 
         {/* EDIT: Experience section */}
@@ -391,6 +599,7 @@ export default function Home() {
           </div>
         </section>
 
+        <div ref={contactSentinelRef} aria-hidden="true" className="h-px w-full" />
         <section id="contact" className="mx-auto max-w-7xl px-6 py-24 sm:px-8 lg:px-10">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
@@ -419,29 +628,36 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* EDIT: Services list */}
-              <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-6">
-                <div className="flex items-center gap-3 text-cyan-200">
-                  <PenTool size={18} />
-                  <span className="text-sm uppercase tracking-[0.25em]">What I can help with</span>
-                </div>
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  {[
-                    { title: "Full stack builds", icon: Globe2 },
-                    { title: "AI-driven features", icon: BrainCircuit },
-                    { title: "Immersive interfaces", icon: Cpu },
-                    { title: "Reliable deployment", icon: ShieldCheck },
-                  ].map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <div className="flex items-center gap-2 text-cyan-200">
-                          <Icon size={16} />
-                          <p className="text-sm font-medium text-white">{item.title}</p>
+              <div className="space-y-6">
+                <ContactPortrait
+                  src="/portraits/sayandip-portrait.png"
+                  alt="Animated self-portrait placeholder"
+                />
+
+                {/* EDIT: Services list */}
+                <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-6">
+                  <div className="flex items-center gap-3 text-cyan-200">
+                    <PenTool size={18} />
+                    <span className="text-sm uppercase tracking-[0.25em]">What I can help with</span>
+                  </div>
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                    {[
+                      { title: "Full stack builds", icon: Globe2 },
+                      { title: "AI-driven features", icon: BrainCircuit },
+                      { title: "Immersive interfaces", icon: Cpu },
+                      { title: "Reliable deployment", icon: ShieldCheck },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                          <div className="flex items-center gap-2 text-cyan-200">
+                            <Icon size={16} />
+                            <p className="text-sm font-medium text-white">{item.title}</p>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -450,8 +666,8 @@ export default function Home() {
       </main>
 
       {/* EDIT: Footer */}
-      <footer className="border-t border-white/10 px-6 py-8 text-center text-sm text-slate-400 sm:px-8 lg:px-10">
-        Designed and developed with motion, clarity, and care.
+      <footer className="relative z-10 border-t border-white/10 px-6 py-8 text-center text-sm text-slate-400 sm:px-8 lg:px-10">
+        Designed and developed by Sayandip.
       </footer>
     </div>
   );
